@@ -22,41 +22,25 @@ dependencies {
 ** Add internet access in the AndroidManifest
 
 **Using Library In Your Application**
--URL Exanple : https://jsonplaceholder.typicode.com/todos/1
+URL Exanple : https://jsonplaceholder.typicode.com/todos/1
 
 
 **Execute a GET Request**
-KotNetworking.get("https://jsonplaceholder.typicode.com/todos/1")
-                .addPathParameter("userId","1") // example - Optional
-                .addQueryParameter("userId","1") // example - Optional
-                .addHeaders("userId", "1") // example - Optional
-                .setPriority(Priority.MEDIUM) // Priority Level
+KotNetworking.get(url)
+                .addPathParameter("userId","1") 
+                .addQueryParameter("userId","1") 
+                .addHeaders("userId", "1") 
+                .setPriority(Priority.MEDIUM) 
                 .build()
-                .getAsString { result, error ->         **// With String**
+                .getAsString { result, error ->        
                     if (error == null){
                         // do anything with result
                     }else{
                         // do anything with erro
                     }
                 }
-                --
-                .getAsJSONArray { result, error ->    **// With JSONArray**
-                    if (error == null){
-                        // do anything with result
-                    }else{
-                        // do anything with erro
-                    }
-                }
-                --
-                .getAsJSONObject { result, error ->   **// With JSONArray**
-                    if (error == null){
-                        // do anything with result
-                    }else{
-                        // do anything with erro
-                    }
-                }
-                --And a few other GET methods
-   
+                
+  
    
 **Execute a POST Request**
 KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
