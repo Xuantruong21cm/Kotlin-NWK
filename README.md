@@ -1,8 +1,8 @@
 # Kotlin-NWK </br>
 **KOTLIN ANDROID NETWORKING** </br>
-#### It uses OkHttp</br>
-** HOW TO USE ? **</br>
-- Add to your project - </br>
+#### It uses OkHttp
+##### HOW TO USE ?
+###### Add to your project 
 ![alt text](https://github.com/[Xuantruong21cm]/[Kotlin-NWK]/blob/[master]/Capture.PNG?raw=true)</br>
 
 ** Add in it your roo build.gradle at the end of repositories</br>
