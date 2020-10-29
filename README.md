@@ -229,8 +229,14 @@ KotNetworking.upload(url)
 ##### Cancelling a request
 ```
 KotNetworking.cancel("tag")  // All the requests with the given tag will be cancelled.
+```
+</br>
+```
             KotNetworking.forceCancelAll() // All the requests will be cancelled , even if any percent threshold is
             // set , it will be cancelled forcefully.
+```
+</br>
+```
             KotNetworking.cancelAll() // All the requests will be cancelled.
 ```
 ##### Contributing to Kotlin-NWK
