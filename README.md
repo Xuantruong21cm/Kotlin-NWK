@@ -25,7 +25,7 @@ dependencies {</br>
 ```
 ### Using Library In Your Application </br>
 
-### Execute a GET Request
+#### Execute a GET Request
 ```
 KotNetworking.get(url)
                 .addPathParameter("userId","1") 
@@ -42,7 +42,7 @@ KotNetworking.get(url)
                 }
  ```
    
-### Execute a POST Request
+#### Execute a POST Request
 ```
 KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                 .addBodyParameter("userId", "1") // example - Optional
