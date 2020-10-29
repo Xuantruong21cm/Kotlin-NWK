@@ -39,7 +39,7 @@ KotNetworking.get(url)
                         // do anything with erro
                     }
                 }
-  ```
+ ```
    
 ### Execute a POST Request
 ```
@@ -72,14 +72,14 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                 }
                 --And a few other POST methods
  ```
- </br>
- **You can also post java object, json, file, etc in POST request like this** </br>
- ##### With OBJECT </br>
- ```
- val user: User = User()
+
+ ##### You can also post java object, json, file, etc in POST request like this
+ #### With OBJECT </br>
+```
+val user: User = User()
         user.firstname = "Xuan"
         user.lastname = "Truong"
-        KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
+        KotNetworking.post(url)
                 .addApplicationJsonBody(user)
                 .setTag(this)
                 .setPriority(Priority.MEDIUM)
@@ -97,8 +97,10 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                         Log.d(PostApiTestActivity.TAG, response.toString())
                     }
                 }
-
-        KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
+```
+###### getAsOkHttpResponse
+```
+        KotNetworking.post(url)
                 .addApplicationJsonBody(user)
                 .setTag(this)
                 .setPriority(Priority.MEDIUM)
@@ -126,7 +128,7 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                 }
 ```
                 
-##### With JSONObject </br>
+##### With JSONObject
 ```
   val jsonObject: JSONObject = JSONObject()
                 try {
@@ -153,7 +155,9 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                                 Log.d(PostApiTestActivity.TAG, response.toString())
                             }
                         }
-
+```
+###### getAsOkHttpResponse
+```
                 KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                         .addApplicationJsonBody(jsonObject)
                         .setTag(this)
@@ -180,9 +184,9 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                                 Log.d(PostApiTestActivity.TAG, error.toString())
                             }
                         }
- ```                       
+```                       
                         
-##### Downloading a file from server </br>
+##### Downloading a file from server
 ```
 KotNetworking.download(url,dirPath,fileName)
                 .setTag("downloadExample")
@@ -200,9 +204,9 @@ KotNetworking.download(url,dirPath,fileName)
                     }
                   }
                 }
- ```      
+```      
        
-##### Uploading a file to server </br>
+##### Uploading a file to server 
 ```
 KotNetworking.upload(url)
                 .addMultiPartFile("file",file)
@@ -222,12 +226,12 @@ KotNetworking.upload(url)
                 }
 ```
 
-##### Cancelling a request </br>
+##### Cancelling a request
 ```
 KotNetworking.cancel("tag")  // All the requests with the given tag will be cancelled.
             KotNetworking.forceCancelAll() // All the requests will be cancelled , even if any percent threshold is
             // set , it will be cancelled forcefully.
             KotNetworking.cancelAll() // All the requests will be cancelled.
 ```
-**Contributing to Kotlin-NWK**</br>
+##### Contributing to Kotlin-NWK
 There are a few other features, you can learn by yourself during use. Please point out mistakes and comment if possible
