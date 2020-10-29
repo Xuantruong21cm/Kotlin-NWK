@@ -72,9 +72,8 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                 }
                 --And a few other POST methods
  ```
+ </br>
  **You can also post java object, json, file, etc in POST request like this** </br>
- 
- 
  ##### With OBJECT </br>
  ```
  val user: User = User()
