@@ -1,48 +1,48 @@
-# Kotlin-NWK
-**KOTLIN ANDROID NETWORKING**
-- It uses OkHttp
-** HOW TO USE ? **
-- Add to your project -
-![alt text](https://github.com/[Xuantruong21cm]/[Kotlin-NWK]/blob/[master]/Capture.PNG?raw=true)
+# Kotlin-NWK </br>
+**KOTLIN ANDROID NETWORKING** </br>
+#### It uses OkHttp</br>
+** HOW TO USE ? **</br>
+- Add to your project - </br>
+![alt text](https://github.com/[Xuantruong21cm]/[Kotlin-NWK]/blob/[master]/Capture.PNG?raw=true)</br>
 
-** Add in it your roo build.gradle at the end of repositories
+** Add in it your roo build.gradle at the end of repositories</br>
 
-repositories {
-     ...
-     maven { url 'https://jitpack.io' }
+repositories {</br>
+     ...</br>
+     maven { url 'https://jitpack.io' }</br>
 }
 
-** Add the dependency
+## Add the dependency
 
-dependencies {
-    ...
-    implementation 'com.github.Xuantruong21cm:Kotlin-NWK:1.0.0'
+dependencies {</br>
+    ...</br>
+    implementation 'com.github.Xuantruong21cm:Kotlin-NWK:1.0.0'</br>
 }
 
-** Add internet access in the AndroidManifest
+##### Add internet access in the AndroidManifest
 
-**Using Library In Your Application**
-URL Exanple : https://jsonplaceholder.typicode.com/todos/1
+## Using Library In Your Application**
 
 
-**Execute a GET Request**
+### Execute a GET Request
+```
 KotNetworking.get(url)
                 .addPathParameter("userId","1") 
                 .addQueryParameter("userId","1") 
                 .addHeaders("userId", "1") 
                 .setPriority(Priority.MEDIUM) 
                 .build()
-                .getAsString { result, error ->        
+                .getAsString { result, error ->      // or getAsJSONArray or getAsJSONObject  
                     if (error == null){
                         // do anything with result
                     }else{
                         // do anything with erro
                     }
                 }
-                
-  
+  ```
    
-**Execute a POST Request**
+### Execute a POST Request
+```
 KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                 .addBodyParameter("userId", "1") // example - Optional
                 .setPriority(Priority.MEDIUM) // Priority Level
@@ -71,11 +71,12 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                     }
                 }
                 --And a few other POST methods
+ ```
+ **You can also post java object, json, file, etc in POST request like this** </br>
  
- **You can also post java object, json, file, etc in POST request like this**
  
- 
- * With OBJECT
+ ##### With OBJECT </br>
+ ```
  val user: User = User()
         user.firstname = "Xuan"
         user.lastname = "Truong"
@@ -124,9 +125,10 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                         Log.d(PostApiTestActivity.TAG, error.toString())
                     }
                 }
+```
                 
-                
- * With JSONObject
+##### With JSONObject </br>
+```
   val jsonObject: JSONObject = JSONObject()
                 try {
                     jsonObject.put("Xuan", "Truong")
@@ -179,9 +181,10 @@ KotNetworking.post("https://jsonplaceholder.typicode.com/todos/1")
                                 Log.d(PostApiTestActivity.TAG, error.toString())
                             }
                         }
+ ```                       
                         
-                        
-* Downloading a file from server
+##### Downloading a file from server </br>
+```
 KotNetworking.download(url,dirPath,fileName)
                 .setTag("downloadExample")
                 .setPriority(Priority.MEDIUM)
@@ -198,9 +201,10 @@ KotNetworking.download(url,dirPath,fileName)
                     }
                   }
                 }
+ ```      
        
-       
-* Uploading a file to server
+##### Uploading a file to server </br>
+```
 KotNetworking.upload(url)
                 .addMultiPartFile("file",file)
                 .addMultiPartParameter("key","value")
@@ -217,13 +221,14 @@ KotNetworking.upload(url)
                         // do anything with erro
                     }
                 }
+```
 
-
-* Cancelling a request
+##### Cancelling a request </br>
+```
 KotNetworking.cancel("tag")  // All the requests with the given tag will be cancelled.
             KotNetworking.forceCancelAll() // All the requests will be cancelled , even if any percent threshold is
             // set , it will be cancelled forcefully.
             KotNetworking.cancelAll() // All the requests will be cancelled.
-
-**Contributing to Kotlin-NWK**
+```
+**Contributing to Kotlin-NWK**</br>
 There are a few other features, you can learn by yourself during use. Please point out mistakes and comment if possible
