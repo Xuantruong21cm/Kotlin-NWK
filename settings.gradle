@@ -1,0 +1,3 @@
+include ':Kotlin-Networking'
+include ':app'
+rootProject.name = "Kotlin-AndroidNetworking"
