@@ -20,9 +20,10 @@ dependencies {</br>
 }
 
 ##### Add internet access in the AndroidManifest
+```
 <uses-permission android:name="android.permission.INTERNET"/>
-### Using Library In Your Application
-
+```
+### Using Library In Your Application </br>
 
 ### Execute a GET Request
 ```
