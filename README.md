@@ -233,12 +233,12 @@ KotNetworking.cancel("tag")  // All the requests with the given tag will be canc
 ```
 ###### forceCancelAll()
 ```
-            KotNetworking.forceCancelAll() // All the requests will be cancelled , even if any percent threshold is
-            // set , it will be cancelled forcefully.
+KotNetworking.forceCancelAll() // All the requests will be cancelled , even if any percent threshold is
+      // set , it will be cancelled forcefully.
 ```
 ###### cancelAll()
 ```
-            KotNetworking.cancelAll() // All the requests will be cancelled.
+KotNetworking.cancelAll() // All the requests will be cancelled.
 ```
 ##### Contributing to Kotlin-NWK
 There are a few other features, you can learn by yourself during use. Please point out mistakes and comment if possible
