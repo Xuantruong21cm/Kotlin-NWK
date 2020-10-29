@@ -3,7 +3,7 @@
 #### It uses OkHttp
 ##### HOW TO USE ?
 ###### Add to your project 
-![alt text](https://github.com/[Xuantruong21cm]/[Kotlin-NWK]/blob/[master]/Capture.PNG?raw=true)</br>
+![Alt text](https://github.com/Xuantruong21cm/Kotlin-NWK/blob/master/Capture.PNG)
 
 ** Add in it your roo build.gradle at the end of repositories</br>
 
