@@ -3,6 +3,7 @@
 #### It uses OkHttp
 ##### HOW TO USE ?
 ###### Add to your project 
+#### Kotlin Networking Library is based on [Fast Android Networking](https://github.com/amitshekhariitbhu/Fast-Android-Networking) and Rebuild, Fix , Update supported for Kotlin
 ![Alt text](https://github.com/Xuantruong21cm/Kotlin-NWK/blob/master/Capture.PNG)
 
 ** Add in it your roo build.gradle at the end of repositories</br>
