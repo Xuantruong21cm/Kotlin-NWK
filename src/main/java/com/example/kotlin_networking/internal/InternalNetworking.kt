@@ -1,0 +1,250 @@
+package com.example.kotlin_networking.internal
+
+import android.net.TrafficStats
+import com.example.kotlin_networking.common.ConnectionClassManager
+import com.example.kotlin_networking.common.KotConstants
+import com.example.kotlin_networking.common.Method
+import com.example.kotlin_networking.erro.KotError
+import com.example.kotlin_networking.request.KotRequest
+import com.example.kotlin_networking.untils.KotUtils
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+
+class InternalNetworking private constructor() {
+
+    companion object {
+
+        var sOkHttpClient: OkHttpClient = defaultOkHttpClient()
+        var userAgent: String? = null
+
+        fun defaultOkHttpClient(): OkHttpClient = OkHttpClient()
+                .newBuilder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build()
+
+        @Throws(KotError::class)
+        fun makeSimpleRequestAndGetResponse(kotRequest: KotRequest): Response? {
+
+            val okHttpRequest: Request
+            val okHttpResponse: Response?
+
+            try {
+                var builder: Request.Builder = Request.Builder().url(kotRequest.getFormattedUrl())
+                addHeadersToRequestBuilder(builder, kotRequest)
+                var requestBody: RequestBody? = null
+
+                when (kotRequest.method) {
+                    Method.GET -> {
+                        builder = builder.get()
+                    }
+                    Method.POST -> {
+                        requestBody = kotRequest.getRequestBody()
+                        builder = builder.post(requestBody)
+                    }
+                    Method.PUT -> {
+                        requestBody = kotRequest.getRequestBody()
+                        builder = builder.put(requestBody)
+                    }
+                    Method.DELETE -> {
+                        requestBody = kotRequest.getRequestBody()
+                        builder = builder.delete(requestBody)
+                    }
+                    Method.HEAD -> {
+                        builder = builder.head()
+                    }
+                    Method.PATCH -> {
+                        requestBody = kotRequest.getRequestBody()
+                        builder = builder.patch(requestBody)
+                    }
+                }
+
+                kotRequest.cacheControl?.let {
+                    builder.cacheControl(kotRequest.cacheControl!!)
+                }
+                okHttpRequest = builder.build()
+
+                if (kotRequest.okHttpClient != null)
+                    kotRequest.call = kotRequest.okHttpClient?.newBuilder()?.cache(sOkHttpClient.cache())?.build()?.newCall(okHttpRequest)
+                else
+                    kotRequest.call = sOkHttpClient.newCall(okHttpRequest)
+
+                val startTime = System.currentTimeMillis()
+                val startBytes = TrafficStats.getTotalRxBytes()
+                okHttpResponse = kotRequest.call?.execute()
+                val timeTaken = System.currentTimeMillis() /*endTime*/ - startTime
+                if (okHttpResponse?.cacheResponse() == null) {
+                    val finalBytes = TrafficStats.getTotalRxBytes()
+                    val diffBytes: Long?
+                    if (finalBytes == TrafficStats.UNSUPPORTED.toLong() || startBytes == TrafficStats.UNSUPPORTED.toLong()) {
+                        diffBytes = okHttpResponse?.body()?.contentLength()
+                    } else {
+                        diffBytes = finalBytes - startBytes
+                    }
+                    ConnectionClassManager.instance?.updateBandwidth(diffBytes, timeTaken)
+
+                    var bytesSent = -1L
+                    if (requestBody != null && requestBody.contentLength() > 0L) {
+                        bytesSent = requestBody.contentLength()
+                    }
+
+                    val bytesReceived = diffBytes ?: 0
+                    KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, bytesSent, bytesReceived, false)
+                } else if (kotRequest.analyticsListener != null) {
+                    if (okHttpResponse.networkResponse() == null) {
+                        KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, 0, 0, true)
+                    } else {
+                        var bytesSent = -1L
+                        if (requestBody != null && requestBody.contentLength() != 0L)
+                            bytesSent = requestBody.contentLength()
+                        KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, bytesSent, 0, true)
+                    }
+                }
+
+
+            } catch (ioe: IOException) {
+                throw KotError(ioe)
+            }
+
+            return okHttpResponse
+        }
+
+        @Throws(KotError::class)
+        fun makeDownloadRequestAndGetResponse(kotRequest: KotRequest): Response? {
+            val okHttpRequest: Request
+            val okHttpResponse: Response?
+            try {
+                var builder: Request.Builder = Request.Builder().url(kotRequest.getFormattedUrl())
+                addHeadersToRequestBuilder(builder, kotRequest)
+                builder = builder.get()
+                kotRequest.cacheControl?.let { builder.cacheControl(it) }
+                okHttpRequest = builder.build()
+
+                val okHttpClient = if (kotRequest.okHttpClient != null) {
+                    kotRequest.okHttpClient?.newBuilder()
+                            ?.cache(sOkHttpClient.cache())
+                            ?.addInterceptor { chain ->
+                                val response: Response = chain.proceed(chain.request())
+                                response.newBuilder()
+                                        .body(ResponseProgressBody(response.body()!!, kotRequest.getDownloadProgressListener()))
+                                        .build()
+                            }?.build()
+                } else {
+                    sOkHttpClient.newBuilder().addInterceptor { chain ->
+                        val response: Response = chain.proceed(chain.request())
+                        response.newBuilder()
+                                .body(ResponseProgressBody(response.body()!!, kotRequest.getDownloadProgressListener()))
+                                .build()
+                    }?.build()
+                }
+
+                kotRequest.call = okHttpClient?.newCall(okHttpRequest)
+
+                val startTime = System.currentTimeMillis()
+                val startBytes = TrafficStats.getTotalRxBytes()
+                okHttpResponse = kotRequest.call?.execute()
+                KotUtils.saveFile(okHttpResponse, kotRequest.dirPath, kotRequest.fileName)
+                val timeTaken = System.currentTimeMillis() /*endTime*/ - startTime
+                if (okHttpResponse?.cacheResponse() == null) {
+                    val finalBytes = TrafficStats.getTotalRxBytes()
+                    val diffBytes: Long?
+                    if (finalBytes == TrafficStats.UNSUPPORTED.toLong() || startBytes == TrafficStats.UNSUPPORTED.toLong()) {
+                        diffBytes = okHttpResponse?.body()?.contentLength()
+                    } else {
+                        diffBytes = finalBytes - startBytes
+                    }
+
+                    ConnectionClassManager.instance?.updateBandwidth(diffBytes, timeTaken)
+                    val bytesReceived = diffBytes ?: 0
+                    KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, -1, bytesReceived, false)
+                } else if (kotRequest.analyticsListener != null) {
+                    KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, -1, 0, true)
+                }
+
+            } catch (ioe: IOException) {
+                try {
+                    val destinationFile = File(kotRequest.dirPath + File.separator + kotRequest.fileName)
+                    if (destinationFile.exists()) {
+                        destinationFile.delete()
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+                throw KotError(ioe)
+            }
+            return okHttpResponse
+        }
+
+        @Throws(KotError::class)
+        fun makeUploadRequestAndGetResponse(kotRequest: KotRequest): Response? {
+            val okHttpRequest: Request
+            val okHttpResponse: Response?
+
+            try {
+                var builder: Request.Builder = Request.Builder().url(kotRequest.getFormattedUrl())
+                addHeadersToRequestBuilder(builder, kotRequest)
+                val requestBody: RequestBody = kotRequest.getMultiPartRequestBody()
+                val requestBodyLength = requestBody.contentLength()
+                builder = builder.post(RequestProgressBody(requestBody,
+                        kotRequest.uploadProgressListener))
+
+                kotRequest.cacheControl?.let {
+                    builder.cacheControl(kotRequest.cacheControl!!)
+                }
+
+                okHttpRequest = builder.build()
+
+                if (kotRequest.okHttpClient != null) {
+                    kotRequest.call = kotRequest.okHttpClient?.newBuilder()
+                            ?.cache(sOkHttpClient.cache())?.build()?.newCall(okHttpRequest)
+                } else {
+                    kotRequest.call = sOkHttpClient.newCall(okHttpRequest)
+                }
+
+                val startTime = System.currentTimeMillis()
+                okHttpResponse = kotRequest.call?.execute()
+                val timeTaken = System.currentTimeMillis() /*endTime*/ - startTime
+
+                if (kotRequest.analyticsListener != null) {
+                    if (okHttpResponse?.cacheResponse() == null) {
+                        val byteReceived = okHttpResponse?.body()?.contentLength()
+                        KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken,
+                                requestBodyLength, byteReceived ?: 0, false)
+                    } else {
+                        if (okHttpResponse.networkResponse() == null) {
+                            KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, 0, 0, true)
+                        } else {
+                            KotUtils.sendAnalytics(kotRequest.analyticsListener, timeTaken, requestBodyLength, 0, true)
+                        }
+                    }
+                }
+
+            } catch (ioe: IOException) {
+                throw KotError(ioe)
+            }
+
+            return okHttpResponse
+        }
+
+        fun addHeadersToRequestBuilder(builder: Request.Builder, kotRequest: KotRequest) {
+            if (kotRequest.userAgent != null) {
+                builder.addHeader(KotConstants.USER_AGENT, kotRequest.userAgent!!)
+            } else if (userAgent != null) {
+                kotRequest.userAgent = userAgent
+                builder.addHeader(KotConstants.USER_AGENT, userAgent!!)
+            }
+            val requestHeaders = kotRequest.getHeaders()
+            builder.headers(requestHeaders)
+            if (kotRequest.userAgent != null && !requestHeaders.names().contains(KotConstants.USER_AGENT)) {
+                builder.addHeader(KotConstants.USER_AGENT, kotRequest.userAgent!!)
+            }
+        }
+
+    }
+}
